@@ -28,7 +28,7 @@ start = input("Enter the start symbol:")
 def first(NT):
     f = []
     for i in rules[NT]['RHS']:
-        if i[0].islower() or i[0].isnumeric():
+        if not i[0].isupper():
             f.append(i[0])
         elif i[0] == '@':
             f.append("@")
@@ -39,7 +39,7 @@ def first(NT):
                     Break = True
                     while True:
                         try:
-                            if i[count].islower() or i[count].isnumeric():
+                            if not i[count].isupper():
                                 f.append(i[count])
                                 break
                             for k in first(i[count]):
@@ -68,7 +68,7 @@ def follow(NT):
             if NT in j:
                 try:
                     index = j.find(NT)
-                    if j[index+1].islower() or j[index+1].isnumeric():
+                    if not j[index+1].isupper():
                         f.append(j[index+1])
                     elif j[index+1].isupper():
                         for k in first(j[index+1]):
@@ -76,7 +76,7 @@ def follow(NT):
                                 count = 1
                                 Break = True
                                 while True:
-                                    if j[index+1+count].islower() or j[index+1+count].isnumeric():
+                                    if not j[index+1+count].isupper():
                                         f.append(j[index+1+count])
                                         break
                                     for ele in first(j[index+1+count]):
