@@ -1,5 +1,8 @@
 import re
 import json
+import pandas as pd
+from tabulate import tabulate
+
 rules = {}
 printer = []
 callStack = []
@@ -114,3 +117,67 @@ for i in printer:
     print(i)
 
 print("\n")
+terminals = []
+nonTerminals = list(rules.keys())
+for i in rules.keys():
+    for k in rules[i]["first"]:
+        terminals.append(k)
+    for l in rules[i]["follow"]:
+        terminals.append(l)
+terminals = list(set(terminals))
+terminals.remove('@')
+
+
+data = []
+
+for NT in nonTerminals:
+    temp = {}
+    for T in rules[NT]["first"]:
+        if T == "@":
+            for l in rules[NT]["follow"]:
+                if l in temp.keys():
+                    temp[l] = temp[l] + "\n" + NT+"->@"
+                else:
+                    temp[l] = NT+"->@"
+        for k in rules[NT]["RHS"]:
+            if not k[0].isupper():
+                if k[0] == T:
+                    """  if T in temp.keys():
+                         temp[T] = temp[T] + "\n" + NT+"->"+k
+                     else: """
+                    temp[T] = NT+"->"+k
+            elif k[0].isupper():
+                if T in first(k[0]):
+                    if T in temp.keys():
+                        temp[T] = temp[T] + "\n" + NT+"->"+k
+                    else:
+                        temp[T] = NT+"->"+k
+                if '@' in rules[k[0]]["RHS"]:
+                    count = 1
+                    Break = True
+                    while True:
+                        if k[count].isupper():
+                            if T in first(k[count]):
+                                if T in temp.keys():
+                                    temp[T] = temp[T] + \
+                                        "\n" + NT+"->"+k
+                                else:
+                                    temp[T] = NT+"->"+k
+                                break
+                            if "@" in rules[k[count]]["RHS"]:
+                                count += 1
+                                Break = False
+                        elif k[count] == T:
+                            if T in temp.keys():
+                                temp[T] = temp[T] + "\n" + NT+"->"+k
+                            else:
+                                temp[T] = NT+"->"+k
+                        if(Break):
+                            break
+                        Break = True
+    data.append(temp)
+
+df = pd.DataFrame(data, index=nonTerminals, columns=terminals)
+df.fillna(" ", inplace=True)
+print("\nThe Predictive Parsing Table is:")
+print(tabulate(df, headers='keys', tablefmt='psql'))
